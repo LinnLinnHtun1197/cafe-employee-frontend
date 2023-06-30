@@ -1,8 +1,7 @@
 import { Button, Modal, Space } from "antd";
 import { useDispatch } from "react-redux";
-import { sagaActions } from "../sagas/sagaActions";
 
-const ActionBtns = ({ setShowModal, id }) => {
+const ActionBtns = ({ id, type, setShowModal }) => {
   const dispatch = useDispatch();
 
   const onDelete = () => {
@@ -10,9 +9,8 @@ const ActionBtns = ({ setShowModal, id }) => {
       title: "Delete it?",
       content: `It will be deleted! `,
       onOk() {
-        console.log("id ==> " + id);
         dispatch({
-          type: sagaActions.DELETE_CAFE,
+          type,
           payload: id,
         });
       },

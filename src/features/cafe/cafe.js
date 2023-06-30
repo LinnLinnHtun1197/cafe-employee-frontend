@@ -56,6 +56,7 @@ const Cafe = () => {
         cellRendererParams: (params) => {
           return {
             id: params.data.id,
+            type: sagaActions.DELETE_CAFE,
             setShowModal: setShowModal,
           };
         },

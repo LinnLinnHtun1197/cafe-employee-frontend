@@ -18,6 +18,15 @@ const Employee = () => {
   const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState();
 
+  useEffect(() => {
+    if (cafeId) {
+      dispatch({ type: sagaActions.FETCH_CAFE_EMP, payload: cafeId });
+    } else {
+      dispatch({ type: sagaActions.FETCH_EMP });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const columnDefs = useMemo(
     () => [
       { headerName: "Employee ID", field: "id", flex: 1 },
@@ -38,6 +47,7 @@ const Employee = () => {
         cellRendererParams: (params) => {
           return {
             id: params.data.id,
+            type: sagaActions.DELETE_EMP,
             setShowModal: setShowModal,
           };
         },
@@ -57,15 +67,6 @@ const Employee = () => {
 
   const cellClickedListener = useCallback((event) => {
     setData(event.data);
-  }, []);
-
-  useEffect(() => {
-    if (cafeId) {
-      dispatch({ type: sagaActions.FETCH_CAFE_EMP, payload: cafeId });
-    } else {
-      dispatch({ type: sagaActions.FETCH_EMP });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
