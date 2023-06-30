@@ -1,17 +1,18 @@
 import { AgGridReact } from "ag-grid-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectCafes, selectLoading } from "./cafeSlice";
+import { selectCafes, selectResponse, updateCafeId } from "./cafeSlice";
 import { sagaActions } from "../../sagas/sagaActions";
 import ActionBtns from "../../components/actionCellRenderer";
 import CafeForm from "./cafeForm";
 import { Button, Space } from "antd";
+import { Link } from "react-router-dom";
 
 const Cafe = () => {
   const gridRef = useRef(); // Optional - for accessing Grid's API
-  const loading = useSelector(selectLoading);
-  const cafes = useSelector(selectCafes);
   const dispatch = useDispatch();
+  const cafes = useSelector(selectCafes);
+  const response = useSelector(selectResponse);
   const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState();
 
@@ -31,20 +32,38 @@ const Cafe = () => {
       },
       { field: "name", flex: 1 },
       { field: "description", flex: 1 },
-      { field: "employees", flex: 1 },
+      {
+        field: "employees",
+        flex: 1,
+        cellRenderer: (params) => {
+          return (
+            <Link
+              to={`/employees?cafe_id=${params.data.id}`}
+              onClick={(e) => {
+                dispatch(updateCafeId(params.data.id));
+              }}
+            >
+              {params.data.employees}
+            </Link>
+          );
+        },
+      },
       { field: "location", filter: true, flex: 1 },
       {
         headerName: "action",
         minWidth: 150,
         cellRenderer: ActionBtns,
-        cellRendererParams: {
-          // onClick: (row) => deleteRow(row.data.id),
-          setShowModal: setShowModal,
+        cellRendererParams: (params) => {
+          return {
+            id: params.data.id,
+            setShowModal: setShowModal,
+          };
         },
         editable: false,
         colId: "action",
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -59,11 +78,6 @@ const Cafe = () => {
     setData(event.data);
   }, []);
 
-  // const deleteRow = (rowIndex) => {
-  //   console.log("rowIndex = " + rowIndex);
-  //   //Perform actual delete of `rowIndex` in `this.state.data`
-  // };
-
   return (
     <>
       <Space direction="vertical" size="small" style={{ display: "flex" }}>
@@ -76,11 +90,15 @@ const Cafe = () => {
           Add New Cafe
         </Button>
 
+        <span className={`${response ? response.status : ""}`}>
+          {response ? response.message : ""}
+        </span>
+
         <div style={{ width: "100%", height: "100%" }}>
           <div
             id="myGrid"
             style={{
-              height: "600px",
+              height: `${window.innerHeight}px`,
               width: "100%",
             }}
             className="ag-theme-alpine"
@@ -100,6 +118,7 @@ const Cafe = () => {
       {showModal && (
         <CafeForm
           data={data}
+          resetData={setData}
           showModal={showModal}
           setShowModal={setShowModal}
         />

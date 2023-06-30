@@ -1,11 +1,4 @@
-import defaultAxios from "axios";
-
-const axios = defaultAxios.create({
-  baseURL: "http://localhost:8088/",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+import { axios } from "../../helper/helper";
 
 // Get All Cafes
 export const getAllCafes = async () => {
@@ -35,9 +28,9 @@ export const editCafe = async (data) => {
   }
 };
 
-export const deleteCafe = async (data) => {
+export const deleteCafe = async (id) => {
   try {
-    const cafes = await axios.delete("cafe", JSON.stringify(data));
+    const cafes = await axios.delete(`cafe/${id}/delete`);
     return cafes.data;
   } catch (error) {
     return console.error(error);

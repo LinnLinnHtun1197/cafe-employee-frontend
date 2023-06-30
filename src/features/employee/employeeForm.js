@@ -1,12 +1,22 @@
-import { UploadOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Modal, Upload } from "antd";
-import { useDispatch } from "react-redux";
+import { Button, Form, Input, Modal, Radio, Select } from "antd";
+import { useDispatch, useSelector } from "react-redux";
 import { sagaActions } from "../../sagas/sagaActions";
 import { useEffect } from "react";
+import { selectCafes } from "../cafe/cafeSlice";
 
-const CafeForm = ({ data, resetData, showModal, setShowModal }) => {
+const EmployeeForm = ({ data, resetData, showModal, setShowModal }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const cafes = useSelector(selectCafes);
+  const cafeConvertedData = cafes.map((item) => ({
+    value: item.id,
+    label: item.name + (item.location ? " (" + item.location + ")" : ""),
+  }));
+
+  useEffect(() => {
+    dispatch({ type: sagaActions.FETCH_CAFES });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (data) {
@@ -17,17 +27,12 @@ const CafeForm = ({ data, resetData, showModal, setShowModal }) => {
 
   const onSubmit = (values) => {
     if (!values.id || values.id === undefined) {
-      dispatch({ type: sagaActions.CREATE_CAFE, payload: values });
+      dispatch({ type: sagaActions.CREATE_EMP, payload: values });
       onReset();
     } else {
-      dispatch({ type: sagaActions.UPDATE_CAFE, payload: values });
+      dispatch({ type: sagaActions.UPDATE_EMP, payload: values });
       onReset();
     }
-  };
-
-  const getFile = (e) => {
-    console.log("Upload event:", e.fileList[0]);
-    return e && e.fileList[0];
   };
 
   const onReset = () => {
@@ -38,10 +43,11 @@ const CafeForm = ({ data, resetData, showModal, setShowModal }) => {
   return (
     <Modal
       open={showModal}
-      title="Cafe Form"
+      title="Employee Form"
       okText="Submit"
       cancelText="Cancel"
       onCancel={onReset}
+      autoComplete="off"
       footer={[
         <Button key="cancel" onClick={onReset}>
           Cancel
@@ -68,9 +74,7 @@ const CafeForm = ({ data, resetData, showModal, setShowModal }) => {
         form={form}
         layout="vertical"
         name="form_in_modal"
-        initialValues={{
-          modifier: "public",
-        }}
+        initialValues={{}}
       >
         <Form.Item label="Id" name="id" hidden></Form.Item>
         <Form.Item
@@ -79,7 +83,7 @@ const CafeForm = ({ data, resetData, showModal, setShowModal }) => {
           rules={[
             {
               required: true,
-              message: "Please enter name",
+              message: "Please enter employee name",
             },
             {
               max: 10,
@@ -90,39 +94,46 @@ const CafeForm = ({ data, resetData, showModal, setShowModal }) => {
         >
           <Input />
         </Form.Item>
+
         <Form.Item
-          label="Description"
-          name="description"
+          name="email_address"
+          label="Email address"
           rules={[
             {
-              max: 256,
-              message: "Description is maximum 256 chars",
+              type: "email",
+              message: "The input is not valid E-mail!",
             },
           ]}
         >
           <Input />
         </Form.Item>
-        <Form.Item label="Logo" name="logo" getValueFromEvent={getFile}>
-          <Upload
-            accept="image/*"
-            beforeUpload={(file) => {
-              return false;
-            }}
-            // onChange={handleChange}
-            multiple={false}
-            listType="picture"
-            // defaultFileList={state.fileList}
-            maxCount={1}
-          >
-            <Button icon={<UploadOutlined />}>Select File</Button>
-          </Upload>
-        </Form.Item>
-        <Form.Item label="Location" name="location">
+
+        <Form.Item
+          name="phone_number"
+          label="Phone Number"
+          rules={[
+            {
+              pattern: new RegExp(/(6|8|9)\d{7}$/),
+              message: "Please enter correct phone number!",
+            },
+          ]}
+        >
           <Input />
+        </Form.Item>
+
+        <Form.Item name="gender" label="Gender">
+          <Radio.Group>
+            <Radio value="Male"> Male </Radio>
+            <Radio value="Female"> Female </Radio>
+          </Radio.Group>
+        </Form.Item>
+
+        <Form.Item name="cafe_id" label="Cafe">
+          <Select placeholder="Select Cafe" options={cafeConvertedData} />
         </Form.Item>
       </Form>
     </Modal>
   );
 };
 
-export default CafeForm;
+export default EmployeeForm;
