@@ -90,9 +90,18 @@ const Cafe = () => {
           Add New Cafe
         </Button>
 
-        <span className={`${response ? response.status : ""}`}>
-          {response ? response.message : ""}
-        </span>
+        {response ? (
+          <Space
+            direction="horizontal"
+            style={{
+              width: "100%",
+              justifyContent: "center",
+              color: response.status === "success" ? "green" : "red",
+            }}
+          >
+            <span> {response.message} </span>
+          </Space>
+        ) : null}
 
         <div style={{ width: "100%", height: "100%" }}>
           <div
